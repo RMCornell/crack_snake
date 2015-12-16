@@ -30,6 +30,8 @@ function init()
 
 init();
 
+
+
 // TODO Extract into Snake prototype Method
 function createSnake() {
   var length = 1;
