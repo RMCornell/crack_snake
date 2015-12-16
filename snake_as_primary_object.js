@@ -6,12 +6,20 @@
 var canvas = document.getElementById('game');
 var context = canvas.getContext('2d');
 
-var requestID; // Animate Canvas Request ID
+var cellWidth = 10;
+var startLength = 2;
+
+var moveUp = 38;
+var moveRight = 39;
+var moveDown = 40;
+var moveLeft = 37;
+
 
 // Animate Frame for Game Play
 requestID = requestAnimationFrame(function loop() {
   context.clearRect(0, 0, canvas.width, canvas.height);
   //directionChange();
+  bindControls();
   moveSnake();
   placeFood();
   requestAnimationFrame(loop);
@@ -21,8 +29,11 @@ requestAnimationFrame(moveSnake);
 
 // Define Snake Body as an empty Array
 function Snake() {
+  this.startLength = 2;
   this.body = [];
-  this.head = this.body[0];
+  this.direction = 'right';
+  this.score = 0;
+  //this.head = this.body[0];
   return this;
 }
 
@@ -63,9 +74,25 @@ Body.prototype.draw = function() {
 };
 
 Snake.prototype.draw = function() {
-  context.fillRect(this.x, this.y, this.w, this.h);
-  return this
+  var i = this.startLength - 1;
+
+  for(; i >= 0; i--) {
+    this.body.push({ x: i, y: 0 })
+  }
 };
+
+Snake.prototype.resetSnake = function() {
+  this.body = [];
+  this.direction = 'right';
+  this.score = 0;
+  //this.head = this.body[0];
+  return this;
+};
+
+//Snake.prototype.draw = function() {
+//  context.fillRect(this.x, this.y, this.w, this.h);
+//  return this
+//};
 
 Food.prototype.draw = function() {
   context.fillRect(this.x, this.y, this.w, this.h)
@@ -183,6 +210,7 @@ function up() {
     })
   } else {
     snake.moveUp();
+    snake.checkControls()
   }
 }
 
@@ -260,14 +288,37 @@ var position;
 var newHeadLocationX;
 var newHeadLocationY;
 
+function bindControls() {
+  window.addEventListener('keydown', function(e) {
+    snake.checkControls(e)
+  })
+}
+
+Snake.prototype.bindControls = function() {
+  var _this = this;
+  window.addEventListener('keydown', function(e) {
+    _this.checkControls(e);
+  })
+};
+
+Snake.prototype.checkControls = function(e) {
+  e.preventDefault();
+  var key = e.keyCode;
+  if(key === moveUp && this.direction !== 'down') {
+    this.direction = 'up';
+    this.changeDirectionUp();
+  }
+}
+
+
 // Snake Head Positioning Function
 document.addEventListener('keydown', function(e) {
   if(e.keyCode === 37) {
     direction = leftKey;
     snake.changeDirectionLeft();
-  } else if(e.keyCode === 38) {
-    direction = upKey;
-    snake.changeDirectionUp();
+  //} else if(e.keyCode === 38) {
+  //  direction = upKey;
+  //  snake.changeDirectionUp();
   } else if(e.keyCode === 39) {
     direction = rightKey;
     snake.changeDirectionRight();
